@@ -1,0 +1,12 @@
+{
+  "name": "blockchain-apis",
+  "version": "1.0.0",
+  "description": "Research blockchain interaction in wallet-like scenarios",
+  "main": "main.js",
+  "author": "Ladislav Dubravsky",
+  "license": "MIT",
+  "dependencies": {
+    "bitcoinjs-lib": "^5.2.0",
+    "blockbook-client": "^0.3.13"
+  }
+}
