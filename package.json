@@ -6,7 +6,9 @@
   "author": "Ladislav Dubravsky",
   "license": "MIT",
   "dependencies": {
+    "algosdk": "^1.8.1",
     "bitcoinjs-lib": "^5.2.0",
-    "blockbook-client": "^0.3.13"
+    "blockbook-client": "^0.3.13",
+    "dotenv": "^8.2.0"
   }
 }
