@@ -60,7 +60,9 @@ async function main() {
     await waitForConfirmation(sendTx.txId)
     console.log("Account 1:", account1.addr, (await client.accountInformation(account1.addr).do()).amount)
     console.log("Account 2:", account2.addr, (await client.accountInformation(account2.addr).do()).amount)
+
+    // add participation demo
 }
 
 
-main().catch(console.log);
+main().catch(console.log)
