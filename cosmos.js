@@ -1,5 +1,6 @@
 const ps = require("@cosmjs/proto-signing")
 const sg = require("@cosmjs/stargate")
+const launchpad = require("@cosmjs/launchpad")
 
 
 // https://stargate.cosmos.network/testnet
@@ -15,20 +16,30 @@ async function main() {
     // check balances
     const wallet1 = await ps.DirectSecp256k1HdWallet.fromMnemonic(mnemonic1)
     const wallet2 = await ps.DirectSecp256k1HdWallet.fromMnemonic(mnemonic2)
-    const client1 = await sg.SigningStargateClient.connectWithSigner(rpcEndpoint, wallet1)
-    const client2 = await sg.SigningStargateClient.connectWithSigner(rpcEndpoint, wallet2)
+    // default is a nonsense denomination "ucosm" used only in this libs tests, so we have to override
+    const options = { gasPrice: launchpad.GasPrice.fromString("0.025umuon")}
+    const client1 = await sg.SigningStargateClient.connectWithSigner(rpcEndpoint, wallet1, options)
+    const client2 = await sg.SigningStargateClient.connectWithSigner(rpcEndpoint, wallet2, options)
     const [account1] = await wallet1.getAccounts()
     const [account2] = await wallet2.getAccounts()
-    console.log("Account 1:", account1.address, await client1.getBalance(account1.address, "ucosm"))
-    console.log("Account 2:", account2.address, await client2.getBalance(account2.address, "ucosm"))
+    console.log("Current height:", await client1.getHeight())
+    // console.log("Original funding tx:", await client1.getTx("05F6B3C1F299C8CE5033D9B41A3F37823889AE8C01C5436C2B23F4B12568EDA3"))
+    console.log("Account 1:", account1.address, await client1.getBalance(account1.address, "umuon"))
+    console.log("Account 2:", account2.address, await client2.getBalance(account2.address, "umuon"))
 
-    // send transaction
-    const amount = {
-        denom: "ucosm",
-        amount: "10000",
+    // fund transfer
+    const sendMsg = {
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: {
+            fromAddress: account1.address,
+            toAddress: account2.address,
+            amount: [{ denom: "umuon", amount: "10000" }]
+        }
     }
-    const result = await client1.sendTokens(account1.address, account2.address, [amount], "Msg")
+    let result = await client1.signAndBroadcast(account1.address, [sendMsg], client1.fees.send, "Memo")
     sg.assertIsBroadcastTxSuccess(result)
+    console.log("Account 1:", account1.address, await client1.getBalance(account1.address, "umuon"))
+    console.log("Account 2:", account2.address, await client2.getBalance(account2.address, "umuon"))
 }
 
 
